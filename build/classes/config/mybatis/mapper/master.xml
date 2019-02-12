@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="master">
+
+
+	<!-- general 카운터 찾기 -->
+	<select id ="general_count" resultType="int">
+		select count(*) from GENERAL_MEMBER
+	</select>
+	
+	
+	<!-- general_member 전체를 찾아온다 -->
+	<select id="general_select" resultType="seller" parameterType="int">
+		<![CDATA[
+			SELECT ROWNUM AS RNUM, A.*
+ 			FROM (SELECT ROWNUM AS RNUM, B.*
+        			FROM( SELECT * FROM GENERAL_MEMBER WHERE MASTER= '1' ORDER BY g_idx ) B 
+       				 WHERE ROWNUM <= #{endNo} 
+       			 	)A
+ 			WHERE RNUM >= #{startNo}
+ 		]]>
+	</select>
+	
+	<!-- business 카운터 찾기 -->
+	<select id ="business_count" resultType="int">
+		select count(*) from BUSINESS_MEMBER
+	</select>
+	
+	<!-- business_member 전체를 찾아온다 -->
+	<select id="business_select" resultType="buyer" parameterType="int">
+		<![CDATA[
+			SELECT ROWNUM AS RNUM, A.*
+ 			FROM (SELECT ROWNUM AS RNUM, B.*
+        			FROM( SELECT * FROM BUSINESS_MEMBER WHERE MASTER= '2' ORDER BY b_idx ) B 
+       				 WHERE ROWNUM <= #{endNo} 
+       			 	)A
+ 			WHERE RNUM >= #{startNo}
+ 		]]>
+	</select>
+	
+	<!-- phone 카운터 찾기 -->
+	<select id ="phone_count" resultType="int">
+		select count(*) from phone
+	</select>
+	
+	<!-- phone 전체를 찾아온다 -->
+	<select id="phone_select" parameterType= "hashmap" resultType="trading">
+		<![CDATA[
+			SELECT ROWNUM AS RNUM, A.*
+ 			FROM (SELECT ROWNUM AS RNUM, B.*
+        			FROM( SELECT * FROM PHONE ORDER BY P_IDX ) B 
+       				 WHERE ROWNUM <= #{endNo} 
+       			 	)A
+ 			WHERE RNUM >= #{startNo}
+ 		]]>
+	</select>
+	
+	<!-- leaving 카운터 찾기 -->
+	<select id ="leaving_count" resultType="int">
+		select count(*) from LEAVING_MEMBER
+	</select>
+	
+	<!-- leaving_member 전체를 찾아온다 -->
+	<select id="leaving_select" parameterType= "hashmap" resultType="vo.LeavingVO">
+		<![CDATA[
+			SELECT ROWNUM AS RNUM, A.*
+ 			FROM (SELECT ROWNUM AS RNUM, B.*
+        			FROM( SELECT * FROM LEAVING_MEMBER ORDER BY L_IDX ) B 
+       				 WHERE ROWNUM <= #{endNo} 
+       			 	)A
+ 			WHERE RNUM >= #{startNo}
+ 		]]>
+	</select>
+	
+		<!-- board 카운터 찾기 -->
+	<select id ="board_count" resultType="int">
+		select count(*) from FREEBOARD
+	</select>
+	
+	<!-- free_board 전체를 찾아온다 -->
+	<select id="board_list_select" parameterType= "hashmap" resultType="qnaboard">
+		<![CDATA[
+			SELECT ROWNUM AS RNUM, A.*
+ 			FROM (SELECT ROWNUM AS RNUM, B.*
+        			FROM( SELECT * FROM FREEBOARD ORDER BY FB_IDX ) B 
+       				 WHERE ROWNUM <= #{endNo} 
+       			 	)A
+ 			WHERE RNUM >= #{startNo}
+ 		]]>
+	</select>
+	
+	<!-- general_member 삭제 -->
+	<delete id="delete_general_member" parameterType="int">
+		DELETE FROM	GENERAL_MEMBER WHERE g_idx = #{g_idx}
+	</delete>
+	
+	<!-- general_member 삭제 -->
+	<delete id="delete_business_member" parameterType="int">
+		DELETE FROM	BUSINESS_MEMBER WHERE b_idx = #{b_idx}
+	</delete>
+	
+	<!-- phone 삭제 -->
+	<delete id="delete_phone" parameterType="int">
+		DELETE FROM	PHONE WHERE p_idx = #{p_idx}
+	</delete>
+	
+	<!-- board 삭제 -->
+	<delete id="delete_board" parameterType="int">
+		DELETE FROM	FREEBOARD WHERE fb_idx = #{fb_idx}
+	</delete>
+	
+	
+
+
+</mapper>

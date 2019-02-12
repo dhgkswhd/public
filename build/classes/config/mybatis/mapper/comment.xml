@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comment">
+	
+	
+	<!-- 댓글 불러오기 -->
+	<select id="comment_commentAll" resultType="comment">
+	 	SELECT * FROM BOARD_COMMENT WHERE fb_idx = #{fb_idx} ORDER BY com_idx DESC 
+	</select>
+	
+	
+	<!-- 댓글 추가 -->
+	<insert id="comment_insert" parameterType="comment">
+		INSERT INTO BOARD_COMMENT VALUES ( seq_com_idx.nextVal, #{fb_idx}, #{com_comment}, #{com_writer}, sysdate)
+	</insert>
+	
+	
+	<!-- 댓글 삭제 -->
+	<delete id="comment_delete" parameterType="int">
+		DELETE FROM	BOARD_COMMENT WHERE com_idx = #{com_idx}
+	</delete>
+
+
+	<!-- 댓글 수정 -->
+	<update id="comment_update" parameterType="comment">
+		UPDATE BOARD_COMMENT SET com_comment = #{com_comment}, com_uploadDate=sysdate
+		WHERE com_idx = #{com_idx}
+	</update>
+	
+
+</mapper>

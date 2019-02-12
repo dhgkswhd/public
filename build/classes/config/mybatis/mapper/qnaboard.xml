@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="free_board">
+	
+	<!-- 게시물 검색 -->
+	<select id="free_board_list" parameterType="java.lang.String" resultType="qnaboard">
+ 		SELECT * FROM FREEBOARD
+	 	
+	 	<!-- 검색 기능 (전체목록) -->
+	 	<if test="col.equals('none')">
+		WHERE fb_writer LIKE '%'||#{word}||'%' OR fb_title LIKE '%'||#{word}||'%'  OR fb_content LIKE '%'||#{word}||'%'  
+		ORDER BY fb_idx DESC
+  		</if>
+  		
+  		<!-- 검색 기능 (이름) -->
+		<if test="col.equals('writer')">
+    	WHERE fb_writer like '%'||#{word}||'%' ORDER BY fb_idx DESC 
+  		</if>
+  		
+  		<!-- 검색 기능 (제목) -->
+	   	<if test="col.equals('title')">
+    	WHERE fb_title like '%'||#{word}||'%' ORDER BY fb_idx DESC 
+  		</if>
+  		
+  		<!-- 검색 기능 (내용)-->
+  	 	<if test="col.equals('content')">
+    	WHERE fb_content like '%'||#{word}||'%' ORDER BY fb_idx DESC 
+  		</if>
+	</select>
+
+	<!-- 게시글 등록 -->
+	<insert id="free_board_insert" parameterType="qnaboard">
+		INSERT INTO FREEBOARD VALUES ( seq_fb.nextVal, #{fb_title}, #{fb_writer}, sysdate, #{fb_content}, #{fb_viewNum}, #{fb_pwd} )
+	</insert>
+
+
+	<!-- 게시글 상세보기 -->
+	<select id="free_board_one" parameterType="int" resultType="qnaboard">
+		SELECT * FROM FREEBOARD WHERE fb_idx = #{fb_idx}
+	</select>
+
+
+	<!-- 조회수 증가 -->
+	<update id="free_board_viewnum" parameterType="qnaboard">
+		UPDATE FREEBOARD SET fb_viewNum = fb_viewNum + 1 WHERE fb_idx = #{fb_idx}
+	</update>
+
+
+	<!-- 게시글 삭제 -->
+	<delete id="free_board_delete" parameterType="int">
+		DELETE FROM	FREEBOARD WHERE fb_idx = #{fb_idx}
+	</delete>
+
+
+	<!-- 게시글 수정 -->
+	<update id="free_board_update" parameterType="qnaboard">
+		UPDATE FREEBOARD SET fb_title = #{fb_title}, fb_content = #{fb_content}, fb_uploaddate = sysdate WHERE fb_idx = #{fb_idx}
+	</update>
+
+
+	<!-- 전체글 수 구하기 -->
+	<select id="free_board_count" resultType="int">
+		SELECT COUNT(*) FROM FREEBOARD
+	</select>
+
+	<!-- rownum이 적용된 쿼리. 반환타입은 기존 product_list와 같다. -->
+	<select id="free_board_list_page" parameterType="hashmap" resultType="qnaboard">
+		
+		<!-- 쿼리문에 <= , >= 등이 들어갈 때 CDATA로 묶어주면 처리가 된다.
+			아래 쿼리에서 변경해야할 사항 ( 기존 오라클에서 작성해봤던 쿼리 )
+				1. 테이블
+				2. 조회할 컬럼들 (select ~ )
+				3. 정렬 기준 : 조회수, 날짜 등 유동적일 땐, 파라미터로 전달 받아서 처리해야 한다. (+ 오름차순, 내림차순)
+				4. rownum의 범위 (map에 key 이름을 startNo, endNo 으로 해서 값을 넣어놨었음)
+				5. 필요 시 , where절 추가 (내용 검색한 결과를 목록으로 보여줄 때 필요) 
+					> 이 쇼핑몰 페이지에서는 컴퓨터,가전,스포츠 카테고리에 맞게 상품이 조회되어야 해서 where 추가했음 -->
+		<![CDATA[	
+		select rownum as rnum, A.*
+		from ( select rownum as rnum, B.*
+	       from ( select * from freeboard order by fb_idx DESC ) B
+	       where rownum <= #{endNo}   
+	     ) A
+		where rnum >= #{startNo}
+		]]>
+	
+	</select>
+	
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="trading">
+
+	<!-- 매입신청리스트 db에 등록 -->
+	<insert id="insertTrading" parameterType="product">
+		INSERT INTO TRADING VALUES ( seq_trading.nextVal, #{p_idx}, #{p_image_s}, #{p_name}, #{buyer_id}, #{buyer_hopeprice}, #{seller_id}, #{seller_hopeprice}, '대기', TO_CHAR(sysdate, 'yyyy-mm-dd am hh24:mi') )
+	</insert>
+	
+	<!-- 현재 클릭한상품 매입자의 '대기' 상태인 매입자 리스트 획득 -->
+	<select id="selectBuyerAll" parameterType="int" resultType="trading">
+		SELECT BUYER_ID, BUYER_HOPEPRICE FROM TRADING WHERE P_IDX = #{p_idx} AND T_STATUS ='대기' ORDER BY BUYER_HOPEPRICE DESC
+	</select>
+	
+	<!-- [seller] '입금대기', '대기' 인 상태의 모든 정보 획득-->
+	<select id="seller_transaction_progress" parameterType="hashmap" resultType="trading">
+		SELECT *
+		FROM TRADING 
+		WHERE SELLER_ID = #{seller_id}
+        AND (T_STATUS = #{w1} OR T_STATUS = #{w2})
+		ORDER BY T_STATUS DESC
+	</select>
+	
+	<!-- [buyer] '입금대기', '대기' 인 상태의 모든 정보 획득 -->
+	<select id="buyer_transaction_progress" parameterType="hashmap" resultType="trading">
+		SELECT *
+		FROM TRADING 
+		WHERE BUYER_ID = #{buyer_id}
+        AND (T_STATUS = #{w1} OR T_STATUS = #{w2})
+		ORDER BY T_STATUS DESC
+	</select>
+	
+	<!-- 판매자가 입금요청 버튼을 눌렀을 때, TRADING 테이블에 있는 현재 거래의 상태를 '입금대기'로 변경 -->
+	<update id="depositwaiting" parameterType="int">
+		UPDATE TRADING SET T_STATUS = '입금대기' WHERE P_IDX = #{p_idx}
+	</update>
+	
+	<!-- 거래가 성사되지못한 나머지 매입자들의 상태를 '미체결'로 변경 -->
+	<update id="transactionFail" parameterType="trading">
+		UPDATE TRADING SET T_STATUS = '미체결' WHERE P_IDX = #{p_idx} AND BUYER_HOPEPRICE != #{buyer_	hopeprice}
+	</update>
+	
+	<!-- 해당 거래의 상태를 '완료' 로 변경 -->
+	<update id="transactionComplete" parameterType="int">
+		UPDATE TRADING SET T_STATUS = '완료' WHERE P_IDX = #{p_idx}
+	</update>
+	
+</mapper>
+
+

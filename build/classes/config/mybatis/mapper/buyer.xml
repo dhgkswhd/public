@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="buyer">
+
+	<!-- 아이디 중복체크 -->
+	<select id="checkId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT BUYER_ID FROM BUYER WHERE BUYER_ID = #{paramId}
+	</select>
+	
+	<!-- 회원가입 -->
+	<insert id="insertUserData" parameterType="buyer">
+		INSERT INTO BUYER VALUES ( seq_buyer.nextVal, #{buyer_id}, #{buyer_pwd}, #{buyer_phonenumber}, #{buyer_businessnumber}, #{buyer_mutualname}, #{buyer_wallet}, #{buyer_joindate} )
+	</insert>
+	
+	<!-- 로그인 -->	
+	<select id="getUserData" parameterType="Map" resultType="buyer">	
+		SELECT * FROM BUYER WHERE BUYER_ID = #{id} AND BUYER_PWD = #{pwd}
+	</select>
+	
+	<!-- 회원정보수정 -->
+	<update id="updateUserData" parameterType="buyer">
+		UPDATE BUYER SET BUYER_PHONENUMBER =
+		 	#{buyer_phonenumber}, BUYER_BUSINESSNUMBER = #{buyer_businessnumber}, BUYER_MUTUALNAME = #{buyer_mutualname} WHERE BUYER_ID = #{buyer_id}
+	</update>
+	
+	<!-- 비밀번호수정 -->
+	<update id="updateUserPwd" parameterType="buyer">
+		UPDATE BUYER SET BUYER_PWD = #{buyer_pwd} WHERE BUYER_ID = #{buyer_id}
+	</update>
+	
+	<!-- 비밀번호 수정하고 다시 세션에 저장할때 새 비밀번호 가져오기 -->
+	<select id="getUserPwd" parameterType="buyer" resultType="java.lang.String">
+		SELECT BUYER_PWD FROM BUYER WHERE BUYER_ID = #{buyer_id}
+	</select>
+	
+	<!-- 비밀번호찾기 -->
+	<select id="searchUserPwd" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT BUYER_PWD FROM BUYER WHERE BUYER_ID = #{id} AND BUYER_PHONENUMBER = #{phonenumber}
+	</select>
+	
+	<!-- 회원탈퇴 -->
+	<delete id="deleteUserData" parameterType="java.lang.String">
+		DELETE FROM BUYER WHERE BUYER_ID = #{id}
+	</delete>
+	
+	<!-- 탈퇴한 회원 연령대와 사유 저장 -->
+	<insert id="insertLeavingReason" parameterType="java.util.Map">
+		INSERT INTO LEAVING_MEMBER VALUES ( seq_l.nextVal, #{ages}, #{reason}, sysdate, #{id} )
+	</insert>
+	
+	<!-- 거래가 완료되면 지갑에서 돈 빼감 (Buyer) -->
+	<update id="dropMoney" parameterType="java.util.Map">
+		UPDATE BUYER SET BUYER_WALLET = BUYER_WALLET - #{money} WHERE BUYER_ID = #{buyer_id}
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
